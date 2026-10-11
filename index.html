@@ -1,0 +1,1592 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASARPE - Gestion</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icon-192.png">
+<meta name="theme-color" content="#1e3a8a">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:#f0f2f5;color:#333;padding-bottom:85px}
+header{background:linear-gradient(135deg,#1e3a8a,#3b82f6);color:#fff;padding:15px;text-align:center;position:sticky;top:0;z-index:100;box-shadow:0 2px 10px rgba(0,0,0,.2)}
+header h1{font-size:18px;letter-spacing:1px}
+header p{font-size:12px;opacity:.9;margin-top:3px}
+nav{display:flex;background:#fff;position:fixed;bottom:0;width:100%;border-top:1px solid #ddd;z-index:100;box-shadow:0 -2px 10px rgba(0,0,0,.1);overflow-x:auto}
+nav button{flex:1;min-width:65px;padding:10px 4px;border:none;background:none;font-size:9px;color:#666;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
+nav button.active{color:#1e3a8a;font-weight:bold;background:#eff6ff}
+nav button .icon{font-size:17px}
+.page{display:none;padding:15px;max-width:900px;margin:0 auto}
+.page.active{display:block}
+.card{background:#fff;border-radius:10px;padding:15px;margin-bottom:15px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.card h2{font-size:16px;color:#1e3a8a;margin-bottom:12px;border-bottom:2px solid #e5e7eb;padding-bottom:8px}
+.form-group{margin-bottom:12px}
+.form-group label{display:block;font-size:13px;font-weight:bold;margin-bottom:5px;color:#444}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;background:#fafafa;font-family:inherit}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:#3b82f6;background:#fff}
+.form-row{display:flex;gap:10px}
+.form-row .form-group{flex:1}
+.btn{padding:10px 14px;border:none;border-radius:6px;font-size:13px;font-weight:bold;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px}
+.btn-primary{background:#1e3a8a;color:#fff}
+.btn-success{background:#10b981;color:#fff}
+.btn-danger{background:#ef4444;color:#fff}
+.btn-warning{background:#f59e0b;color:#fff}
+.btn-info{background:#3b82f6;color:#fff}
+.btn-sm{padding:5px 8px;font-size:11px}
+.btn-block{width:100%}
+.table-container{overflow-x:auto;margin-top:10px}
+table{width:100%;border-collapse:collapse;font-size:13px;background:#fff;border-radius:8px;overflow:hidden}
+th{background:#1e3a8a;color:#fff;padding:10px 8px;text-align:left;font-size:12px}
+td{padding:10px 8px;border-bottom:1px solid #eee}
+tr:hover{background:#f8fafc}
+.badge{padding:3px 8px;border-radius:12px;font-size:11px;font-weight:bold;display:inline-block}
+.badge-success{background:#d1fae5;color:#065f46}
+.badge-warning{background:#fef3c7;color:#92400e}
+.badge-danger{background:#fee2e2;color:#991b1b}
+.badge-info{background:#dbeafe;color:#1e40af}
+.badge-gray{background:#e5e7eb;color:#374151}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:15px}
+.stat-card{background:#fff;border-radius:10px;padding:15px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.stat-card .value{font-size:22px;font-weight:bold;color:#1e3a8a}
+.stat-card .label{font-size:11px;color:#666;margin-top:5px}
+.search-box{width:100%;padding:10px 15px;border:1px solid #ddd;border-radius:25px;font-size:14px;margin-bottom:12px;background:#fff}
+.alert{padding:12px;border-radius:8px;margin-bottom:12px;font-size:13px;display:none}
+.alert.show{display:block}
+.alert-error{background:#fee2e2;color:#991b1b;border-left:4px solid #ef4444}
+.alert-success{background:#d1fae5;color:#065f46;border-left:4px solid #10b981}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:200;justify-content:center;align-items:center;padding:20px;overflow-y:auto}
+.modal.show{display:flex}
+.modal-content{background:#fff;border-radius:12px;padding:20px;max-width:500px;width:100%;max-height:90vh;overflow-y:auto}
+.modal-content h3{color:#1e3a8a;margin-bottom:15px}
+.modal-actions{display:flex;gap:10px;margin-top:15px}
+.modal-actions .btn{flex:1}
+.section-title{font-size:14px;font-weight:bold;color:#1e3a8a;margin:15px 0 8px 0;padding-bottom:5px;border-bottom:1px dashed #cbd5e1}
+.empty{text-align:center;padding:30px;color:#999;font-size:14px}
+.scroll-top{position:fixed;bottom:85px;right:15px;background:#1e3a8a;color:#fff;border:none;width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer;display:none;z-index:99}
+.galerie{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:10px}
+.oeuvre-card{background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.oeuvre-card .img{width:100%;height:120px;background:#e5e7eb;display:flex;align-items:center;justify-content:center;font-size:40px;color:#9ca3af}
+.oeuvre-card .img img{width:100%;height:100%;object-fit:cover}
+.oeuvre-card .info{padding:8px;font-size:12px}
+.oeuvre-card .info h4{font-size:13px;color:#1e3a8a;margin-bottom:3px}
+.oeuvre-card .info p{color:#666;font-size:11px}
+.oeuvre-card .actions{padding:5px 8px 8px;display:flex;gap:4px;flex-wrap:wrap}
+.formation-card{background:#fff;border-radius:10px;padding:12px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,.08);border-left:4px solid #1e3a8a}
+.formation-card h4{color:#1e3a8a;font-size:14px;margin-bottom:5px}
+.formation-card p{font-size:12px;color:#555;margin:2px 0}
+.formation-card .actions{margin-top:8px;display:flex;gap:4px;flex-wrap:wrap}
+.rapport-box{background:#f8fafc;border-radius:8px;padding:15px;font-size:13px;line-height:1.8;border-left:4px solid #3b82f6}
+.rapport-box h4{color:#1e3a8a;margin-bottom:8px}
+.rapport-box hr{margin:10px 0;border:none;border-top:1px dashed #cbd5e1}
+.mm-fields{background:#eff6ff;padding:10px;border-radius:6px;margin-top:8px;border-left:3px solid #3b82f6}
+.archive-badge{opacity:.6}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🎨 ASARPE</h1>
+  <p>Association des Artistes Peintres du Kasaï Central</p>
+</header>
+
+<div id="page-dashboard" class="page active">
+  <div class="stats-grid">
+    <div class="stat-card"><div class="value" id="stat-total">0</div><div class="label">Membres</div></div>
+    <div class="stat-card"><div class="value" id="stat-effectifs">0</div><div class="label">Effectifs</div></div>
+    <div class="stat-card"><div class="value" id="stat-comite">0</div><div class="label">Comité</div></div>
+    <div class="stat-card"><div class="value" id="stat-oeuvres">0</div><div class="label">Œuvres</div></div>
+  </div>
+  <div class="card">
+    <h2>💰 Trésorerie</h2>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="value" id="stat-fc">0</div><div class="label">Total FC</div></div>
+      <div class="stat-card"><div class="value" id="stat-usd">0</div><div class="label">Total USD</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>📱 Mobile Money reçu</h2>
+    <div id="dash-mm" class="empty">Aucun transfert</div>
+  </div>
+  <div class="card">
+    <h2>📋 Derniers versements</h2>
+    <div id="dash-vers" class="empty">Aucun versement</div>
+  </div>
+  <div class="card">
+    <h2>⚠️ Cotisations en retard</h2>
+    <div id="dash-retards" class="empty">Aucun retard</div>
+  </div>
+</div>
+
+<div id="page-membres" class="page">
+  <div class="card">
+    <h2>➕ Nouveau membre</h2>
+    <button class="btn btn-primary btn-block" onclick="ouvrirMembre()">📝 Enregistrer un membre</button>
+  </div>
+  <div class="card">
+    <h2>👥 Liste des membres</h2>
+    <input type="text" class="search-box" id="rech-membre" placeholder="🔍 Rechercher..." oninput="afficherMembres()">
+    <div style="margin-bottom:10px">
+      <label style="font-size:12px"><input type="checkbox" id="voir-archives" onchange="afficherMembres()"> Afficher les archivés</label>
+    </div>
+    <div class="table-container">
+      <table>
+        <thead><tr><th>N°</th><th>Nom</th><th>Catégorie</th><th>Tél</th><th>Actions</th></tr></thead>
+        <tbody id="tbody-membres"></tbody>
+      </table>
+    </div>
+    <div id="vide-membres" class="empty">Aucun membre</div>
+  </div>
+</div>
+
+<div id="page-comite" class="page">
+  <div class="card">
+    <h2>➕ Nouveau membre du comité</h2>
+    <button class="btn btn-primary btn-block" onclick="ouvrirComite()">🏛️ Ajouter</button>
+  </div>
+  <div class="card">
+    <h2>🏛️ Comité de Gestion</h2>
+    <input type="text" class="search-box" id="rech-comite" placeholder="🔍 Rechercher..." oninput="afficherComite()">
+    <div class="table-container">
+      <table>
+        <thead><tr><th>Poste</th><th>Nom</th><th>Tél</th><th>Actions</th></tr></thead>
+        <tbody id="tbody-comite"></tbody>
+      </table>
+    </div>
+    <div id="vide-comite" class="empty">Aucun membre</div>
+  </div>
+  <div class="card">
+    <h2>📅 Réunions</h2>
+    <button class="btn btn-success btn-block" onclick="ouvrirReunion()">➕ Enregistrer une réunion</button>
+    <div id="liste-reunions" class="empty" style="margin-top:10px">Aucune réunion</div>
+  </div>
+</div>
+
+<div id="page-versements" class="page">
+  <div class="card">
+    <h2>💵 Nouveau versement</h2>
+    <div class="form-group"><label>Membre *</label><select id="v-membre"></select></div>
+    <div class="form-row">
+      <div class="form-group"><label>Date *</label><input type="date" id="v-date"></div>
+      <div class="form-group"><label>Montant *</label><input type="number" id="v-montant" placeholder="0"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Devise</label><select id="v-devise"><option>FC</option><option>USD</option></select></div>
+      <div class="form-group"><label>Motif</label>
+        <select id="v-motif" onchange="verifAutreMotif()"></select>
+      </div>
+    </div>
+    <div class="form-group" id="bloc-autre-motif" style="display:none">
+      <label>Précisez le motif *</label>
+      <input type="text" id="v-motif-autre" placeholder="Ex: Vente tableau, Aide...">
+    </div>
+    <div class="form-group"><label>Mode de paiement</label>
+      <select id="v-mode" onchange="verifMobileMoney()">
+        <option>Espèces</option>
+        <option>Mobile Money</option>
+        <option>Virement bancaire</option>
+        <option>Chèque</option>
+      </select>
+    </div>
+    <div id="bloc-mm" class="mm-fields" style="display:none">
+      <div class="form-group"><label>Opérateur</label>
+        <select id="v-mm-operateur">
+          <option>M-Pesa (Vodacom)</option>
+          <option>Orange Money</option>
+          <option>Airtel Money</option>
+          <option>Autre</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Numéro de téléphone</label>
+        <input type="tel" id="v-mm-numero" placeholder="Ex: 0812345678">
+      </div>
+      <div class="form-group"><label>Référence / ID transaction</label>
+        <input type="text" id="v-mm-ref" placeholder="Ex: MP240101.1234.A56789">
+      </div>
+      <div class="form-group"><label>Nom de l'expéditeur</label>
+        <input type="text" id="v-mm-expediteur" placeholder="Nom du client">
+      </div>
+      <p style="font-size:11px;color:#1e3a8a">✅ Ce transfert sera enregistré et comptabilisé dans le rapport</p>
+    </div>
+    <div class="form-group"><label>Observation</label><input type="text" id="v-obs"></div>
+    <button class="btn btn-success btn-block" onclick="enregistrerVers()">✅ Enregistrer</button>
+  </div>
+  <div class="card">
+    <h2>📜 Historique</h2>
+    <input type="text" class="search-box" id="rech-vers" placeholder="🔍 Rechercher..." oninput="afficherVers()">
+    <div style="margin-bottom:10px">
+      <label style="font-size:12px"><input type="checkbox" id="voir-archives-vers" onchange="afficherVers()"> Afficher les archivés</label>
+    </div>
+    <div class="table-container">
+      <table>
+        <thead><tr><th>Date</th><th>Membre</th><th>Montant</th><th>Mode</th><th>Actions</th></tr></thead>
+        <tbody id="tbody-vers"></tbody>
+      </table>
+    </div>
+    <div id="vide-vers" class="empty">Aucun versement</div>
+  </div>
+</div>
+
+<div id="page-cotisations" class="page">
+  <div class="card">
+    <h2>⚙️ Paramètres des cotisations</h2>
+    <div class="form-row">
+      <div class="form-group"><label>Ordinaire (FC)</label><input type="number" id="cot-ord" value="5000"></div>
+      <div class="form-group"><label>Effectif (FC)</label><input type="number" id="cot-eff" value="10000"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Honneur (FC)</label><input type="number" id="cot-hon" value="20000"></div>
+      <div class="form-group"><label>Comité (FC)</label><input type="number" id="cot-com" value="15000"></div>
+    </div>
+    <button class="btn btn-primary btn-block" onclick="sauverParams()">💾 Sauvegarder</button>
+  </div>
+  <div class="card">
+    <h2>📅 Suivi des cotisations</h2>
+    <div class="form-row">
+      <div class="form-group"><label>Mois</label>
+        <select id="suivi-mois">
+          <option value="1">Janvier</option><option value="2">Février</option><option value="3">Mars</option>
+          <option value="4">Avril</option><option value="5">Mai</option><option value="6">Juin</option>
+          <option value="7">Juillet</option><option value="8">Août</option><option value="9">Septembre</option>
+          <option value="10">Octobre</option><option value="11">Novembre</option><option value="12">Décembre</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Année</label><input type="number" id="suivi-annee" value="2026"></div>
+    </div>
+    <button class="btn btn-warning btn-block" onclick="afficherCotisations()">🔍 Afficher</button>
+    <div class="table-container" style="margin-top:15px">
+      <table>
+        <thead><tr><th>Membre</th><th>Catégorie</th><th>Montant</th><th>Statut</th><th>Action</th></tr></thead>
+        <tbody id="tbody-cot"></tbody>
+      </table>
+    </div>
+    <div id="vide-cot" class="empty">Sélectionnez un mois</div>
+  </div>
+</div>
+
+<div id="page-oeuvres" class="page">
+  <div class="card">
+    <h2>➕ Nouvelle œuvre</h2>
+    <button class="btn btn-primary btn-block" onclick="ouvrirOeuvre()">🖼️ Ajouter une œuvre</button>
+  </div>
+  <div class="card">
+    <h2>🖼️ Galerie</h2>
+    <input type="text" class="search-box" id="rech-oeuvre" placeholder="🔍 Rechercher..." oninput="afficherOeuvres()">
+    <div id="galerie" class="galerie"></div>
+    <div id="vide-oeuvres" class="empty">Aucune œuvre</div>
+  </div>
+</div>
+
+<div id="page-formations" class="page">
+  <div class="card">
+    <h2>➕ Nouvelle formation</h2>
+    <button class="btn btn-primary btn-block" onclick="ouvrirFormation()">🎓 Ajouter une formation</button>
+  </div>
+  <div class="card">
+    <h2>🎓 Formations</h2>
+    <input type="text" class="search-box" id="rech-formation" placeholder="🔍 Rechercher..." oninput="afficherFormations()">
+    <div id="liste-formations"></div>
+    <div id="vide-formations" class="empty">Aucune formation</div>
+  </div>
+</div>
+
+<div id="page-rapports" class="page">
+  <div class="card">
+    <h2>📊 Rapports</h2>
+    <button class="btn btn-primary btn-block" style="margin-bottom:8px" onclick="rapportGlobal()">🌍 Rapport global</button>
+    <button class="btn btn-success btn-block" style="margin-bottom:8px" onclick="rapportDetaille()">📋 Rapport détaillé</button>
+    <button class="btn btn-warning btn-block" style="margin-bottom:8px" onclick="releveMembre()">📄 Relevé d'un membre</button>
+    <button class="btn btn-info btn-block" onclick="rapportMobileMoney()">📱 Rapport Mobile Money</button>
+  </div>
+  <div class="card">
+    <h2>📥 Exports CSV</h2>
+    <button class="btn btn-primary btn-block" style="margin-bottom:8px" onclick="exportMembres()">📥 Membres</button>
+    <button class="btn btn-success btn-block" style="margin-bottom:8px" onclick="exportVers()">📥 Versements</button>
+    <button class="btn btn-warning btn-block" onclick="exportOeuvres()">📥 Œuvres</button>
+  </div>
+  <div class="card">
+    <h2>💾 Sauvegarde / Restauration</h2>
+    <button class="btn btn-primary btn-block" style="margin-bottom:8px" onclick="sauverJSON()">💾 Sauvegarder</button>
+    <button class="btn btn-success btn-block" style="margin-bottom:8px" onclick="restaurerJSON()">📂 Restaurer</button>
+    <input type="file" id="fichier-resto" accept=".json" style="display:none" onchange="traiterResto(event)">
+    <button class="btn btn-danger btn-block" onclick="reinit()">🗑️ Réinitialiser</button>
+  </div>
+  <div class="card">
+    <h2>📈 Aperçu</h2>
+    <div id="apercu" class="empty">Cliquez sur un rapport</div>
+  </div>
+</div>
+
+<div id="modal-membre" class="modal">
+  <div class="modal-content">
+    <h3 id="titre-modal-membre">📝 Fiche d'adhésion</h3>
+    <input type="hidden" id="m-id">
+    <div class="section-title">👤 Identité</div>
+    <div class="form-row">
+      <div class="form-group"><label>Nom *</label><input type="text" id="m-nom"></div>
+      <div class="form-group"><label>Post-nom *</label><input type="text" id="m-postnom"></div>
+    </div>
+    <div class="form-group"><label>Prénom *</label><input type="text" id="m-prenom"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Sexe</label><select id="m-sexe"><option value="M">Masculin</option><option value="F">Féminin</option></select></div>
+      <div class="form-group"><label>Date de naissance</label><input type="date" id="m-naiss"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Téléphone *</label><input type="tel" id="m-tel"></div>
+      <div class="form-group"><label>Email</label><input type="email" id="m-email"></div>
+    </div>
+    <div class="form-group"><label>Adresse</label><input type="text" id="m-adresse"></div>
+    <div class="section-title">💼 Profession</div>
+    <div class="form-group"><label>Statut</label><select id="m-statut" onchange="toggleEntreprise()">
+      <option>Indépendant</option><option>Salarié</option><option>Fonctionnaire</option><option>Étudiant</option><option>Sans emploi</option><option>Autre</option>
+    </select></div>
+    <div id="bloc-entreprise" style="display:none">
+      <div class="form-group"><label>Entreprise</label><input type="text" id="m-entreprise"></div>
+      <div class="form-group"><label>Poste</label><input type="text" id="m-poste"></div>
+    </div>
+    <div class="form-group"><label>Domaine artistique</label><select id="m-domaine">
+      <option>Peinture</option><option>Sérigraphie</option><option>Céramique</option><option>Sculpture</option><option>Dessin</option><option>Autre</option>
+    </select></div>
+    <div class="section-title">🏛️ Catégorie</div>
+    <div class="form-group"><label>Catégorie</label><select id="m-cat">
+      <option>Ordinaire</option><option>Effectif</option><option>Honneur</option>
+    </select></div>
+    <div class="form-group"><label>Structure</label><input type="text" id="m-structure"></div>
+    <div class="modal-actions">
+      <button class="btn btn-danger" onclick="fermer('modal-membre')">Annuler</button>
+      <button class="btn btn-success" onclick="sauverMembre()">💾 Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-comite" class="modal">
+  <div class="modal-content">
+    <h3 id="titre-modal-comite">🏛️ Membre du Comité</h3>
+    <input type="hidden" id="c-id">
+    <div class="form-group"><label>Poste *</label><select id="c-poste">
+      <option>Président</option><option>Vice-président 1</option><option>Vice-président 2</option>
+      <option>Secrétaire Général</option><option>Secrétaire Général Adjoint</option>
+      <option>Trésorier</option><option>Caissier</option><option>Conseiller</option>
+      <option>Disciplinaire</option><option>Logisticien</option><option>Protocole</option>
+      <option>Sécurité</option><option>Mobilisateur</option>
+    </select></div>
+    <div class="form-row">
+      <div class="form-group"><label>Nom *</label><input type="text" id="c-nom"></div>
+      <div class="form-group"><label>Post-nom *</label><input type="text" id="c-postnom"></div>
+    </div>
+    <div class="form-group"><label>Prénom</label><input type="text" id="c-prenom"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Téléphone *</label><input type="tel" id="c-tel"></div>
+      <div class="form-group"><label>Email</label><input type="email" id="c-email"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Début mandat</label><input type="date" id="c-debut"></div>
+      <div class="form-group"><label>Fin mandat</label><input type="date" id="c-fin"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-danger" onclick="fermer('modal-comite')">Annuler</button>
+      <button class="btn btn-success" onclick="sauverComite()">💾 Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-reunion" class="modal">
+  <div class="modal-content">
+    <h3>📅 Réunion</h3>
+    <div class="form-row">
+      <div class="form-group"><label>Date *</label><input type="date" id="r-date"></div>
+      <div class="form-group"><label>Type</label><select id="r-type"><option>Ordinaire</option><option>Extraordinaire</option></select></div>
+    </div>
+    <div class="form-group"><label>Ordre du jour *</label><textarea id="r-ordre" rows="3"></textarea></div>
+    <div class="form-group"><label>PV</label><textarea id="r-pv" rows="3"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-danger" onclick="fermer('modal-reunion')">Annuler</button>
+      <button class="btn btn-success" onclick="sauverReunion()">💾 Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-oeuvre" class="modal">
+  <div class="modal-content">
+    <h3 id="titre-modal-oeuvre">🖼️ Nouvelle œuvre</h3>
+    <input type="hidden" id="o-id">
+    <div class="form-group"><label>Titre *</label><input type="text" id="o-titre"></div>
+    <div class="form-group"><label>Artiste *</label><select id="o-artiste"></select></div>
+    <div class="form-row">
+      <div class="form-group"><label>Technique</label><select id="o-technique">
+        <option>Peinture à l'huile</option><option>Aquarelle</option><option>Acrylique</option>
+        <option>Sérigraphie</option><option>Céramique</option><option>Sculpture</option><option>Dessin</option>
+      </select></div>
+      <div class="form-group"><label>Année</label><input type="number" id="o-annee" value="2026"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Dimensions</label><input type="text" id="o-dim"></div>
+      <div class="form-group"><label>Prix (FC)</label><input type="number" id="o-prix"></div>
+    </div>
+    <div class="form-group"><label>Description</label><textarea id="o-desc" rows="2"></textarea></div>
+    <div class="form-group"><label>Photo (URL)</label><input type="text" id="o-photo"></div>
+    <div class="form-group"><label>Statut</label><select id="o-statut">
+      <option>Disponible</option><option>Vendu</option><option>Réservé</option><option>Exposé</option>
+    </select></div>
+    <div class="modal-actions">
+      <button class="btn btn-danger" onclick="fermer('modal-oeuvre')">Annuler</button>
+      <button class="btn btn-success" onclick="sauverOeuvre()">💾 Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-formation" class="modal">
+  <div class="modal-content">
+    <h3>🎓 Nouvelle formation</h3>
+    <div class="form-group"><label>Titre *</label><input type="text" id="f-titre"></div>
+    <div class="form-group"><label>Formateur *</label><input type="text" id="f-formateur"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Début</label><input type="date" id="f-debut"></div>
+      <div class="form-group"><label>Fin</label><input type="date" id="f-fin"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Lieu</label><input type="text" id="f-lieu"></div>
+      <div class="form-group"><label>Places</label><input type="number" id="f-places" value="20"></div>
+    </div>
+    <div class="form-group"><label>Frais (FC)</label><input type="number" id="f-frais" value="0"></div>
+    <div class="form-group"><label>Description</label><textarea id="f-desc" rows="2"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-danger" onclick="fermer('modal-formation')">Annuler</button>
+      <button class="btn btn-success" onclick="sauverFormation()">💾 Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-partage" class="modal">
+  <div class="modal-content">
+    <h3>📤 Partager</h3>
+    <div class="form-group"><label>Destinataire</label><input type="text" id="p-dest"></div>
+    <div class="form-group"><label>Message</label><textarea id="p-msg" rows="5"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-danger" onclick="fermer('modal-partage')">Annuler</button>
+      <button class="btn btn-warning" onclick="envoyerWhatsApp()">💬 WhatsApp</button>
+      <button class="btn btn-success" onclick="envoyerEmail()">📧 Email</button>
+    </div>
+  </div>
+</div>
+
+<button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<nav>
+  <button class="active" onclick="changerPage('dashboard', this)"><span class="icon">📊</span>Dashboard</button>
+  <button onclick="changerPage('membres', this)"><span class="icon">👥</span>Membres</button>
+  <button onclick="changerPage('comite', this)"><span class="icon">🏛️</span>Comité</button>
+  <button onclick="changerPage('versements', this)"><span class="icon">💵</span>Versements</button>
+  <button onclick="changerPage('cotisations', this)"><span class="icon">📅</span>Cotisations</button>
+  <button onclick="changerPage('oeuvres', this)"><span class="icon">🖼️</span>Œuvres</button>
+  <button onclick="changerPage('formations', this)"><span class="icon">🎓</span>Formations</button>
+  <button onclick="changerPage('rapports', this)"><span class="icon">📈</span>Rapports</button>
+</nav>
+
+<script>
+var CLE = {
+  MEMBRES: 'asarpe_membres',
+  VERS: 'asarpe_vers',
+  PARAMS: 'asarpe_params',
+  COMITE: 'asarpe_comite',
+  REUNIONS: 'asarpe_reunions',
+  OEUVRES: 'asarpe_oeuvres',
+  FORMATIONS: 'asarpe_formations',
+  MOTIFS: 'asarpe_motifs'
+};
+
+function lire(cle) {
+  try { return JSON.parse(localStorage.getItem(cle)) || []; }
+  catch(e) { return []; }
+}
+function ecrire(cle, data) { localStorage.setItem(cle, JSON.stringify(data)); }
+function id() { return Date.now().toString(36) + Math.random().toString(36).substr(2, 5); }
+function fmtMontant(m) { return new Intl.NumberFormat('fr-FR').format(m || 0); }
+function fmtDate(d) { if (!d) return '-'; return new Date(d).toLocaleDateString('fr-FR'); }
+function ouvrir(id) { document.getElementById(id).classList.add('show'); }
+function fermer(id) { document.getElementById(id).classList.remove('show'); }
+
+function motifsBase() {
+  return ['Frais d\'adhésion', 'Carte de membre', 'Cotisation mensuelle', 'Cotisation annuelle', 'Don', 'Subvention', 'Achat d\'œuvres', 'Autre'];
+}
+function chargerMotifs() {
+  var custom = lire(CLE.MOTIFS);
+  var base = motifsBase();
+  var result = base.slice();
+  for (var i = 0; i < custom.length; i++) {
+    if (result.indexOf(custom[i]) < 0) result.splice(result.length - 1, 0, custom[i]);
+  }
+  var sel = document.getElementById('v-motif');
+  if (!sel) return;
+  var html = '';
+  for (var j = 0; j < result.length; j++) html += '<option value="' + result[j] + '">' + result[j] + '</option>';
+  sel.innerHTML = html;
+}
+function ajouterMotifCustom(motif) {
+  var custom = lire(CLE.MOTIFS);
+  if (custom.indexOf(motif) < 0) {
+    custom.push(motif);
+    ecrire(CLE.MOTIFS, custom);
+  }
+}
+function verifAutreMotif() {
+  var v = document.getElementById('v-motif').value;
+  document.getElementById('bloc-autre-motif').style.display = v === 'Autre' ? 'block' : 'none';
+  if (v !== 'Autre') document.getElementById('v-motif-autre').value = '';
+}
+function verifMobileMoney() {
+  var v = document.getElementById('v-mode').value;
+  document.getElementById('bloc-mm').style.display = v === 'Mobile Money' ? 'block' : 'none';
+}
+
+function changerPage(nom, btn) {
+  var pages = document.querySelectorAll('.page');
+  for (var i = 0; i < pages.length; i++) pages[i].classList.remove('active');
+  document.getElementById('page-' + nom).classList.add('active');
+  var btns = document.querySelectorAll('nav button');
+  for (var j = 0; j < btns.length; j++) btns[j].classList.remove('active');
+  if (btn) btn.classList.add('active');
+  window.scrollTo(0, 0);
+  if (nom === 'dashboard') afficherDashboard();
+  if (nom === 'membres') afficherMembres();
+  if (nom === 'comite') { afficherComite(); afficherReunions(); }
+  if (nom === 'versements') { afficherVers(); remplirSelectMembres(); chargerMotifs(); }
+  if (nom === 'cotisations') afficherCotisations();
+  if (nom === 'oeuvres') { afficherOeuvres(); remplirSelectArtistes(); }
+  if (nom === 'formations') afficherFormations();
+}
+
+function afficherDashboard() {
+  var membres = lire(CLE.MEMBRES);
+  var vers = lire(CLE.VERS);
+  var comite = lire(CLE.COMITE);
+  var oeuvres = lire(CLE.OEUVRES);
+  var actifs = membres.filter(function(m) { return !m.archive; });
+  document.getElementById('stat-total').textContent = actifs.length;
+  var eff = 0;
+  for (var i = 0; i < actifs.length; i++) if (actifs[i].categorie === 'Effectif') eff++;
+  document.getElementById('stat-effectifs').textContent = eff;
+  document.getElementById('stat-comite').textContent = comite.length;
+  document.getElementById('stat-oeuvres').textContent = oeuvres.length;
+  var totalFC = 0, totalUSD = 0;
+  for (var k = 0; k < vers.length; k++) {
+    if (vers[k].archive) continue;
+    if (vers[k].devise === 'FC') totalFC += Number(vers[k].montant);
+    if (vers[k].devise === 'USD') totalUSD += Number(vers[k].montant);
+  }
+  document.getElementById('stat-fc').textContent = fmtMontant(totalFC);
+  document.getElementById('stat-usd').textContent = fmtMontant(totalUSD);
+
+  var mmList = vers.filter(function(v) { return v.mode === 'Mobile Money' && !v.archive; });
+  var dashMM = document.getElementById('dash-mm');
+  if (mmList.length === 0) dashMM.innerHTML = '<div class="empty">Aucun transfert</div>';
+  else {
+    var sortedMM = mmList.slice().sort(function(a,b) { return new Date(b.date) - new Date(a.date); }).slice(0, 5);
+    var html = '';
+    for (var n = 0; n < sortedMM.length; n++) {
+      var v = sortedMM[n];
+      html += '<div style="padding:8px 0;border-bottom:1px solid #eee;font-size:13px">' +
+        '<strong>' + (v.mmExpediteur || 'Inconnu') + '</strong> - ' + fmtMontant(v.montant) + ' ' + v.devise + '<br>' +
+        '<small style="color:#1e3a8a">📱 ' + (v.mmOperateur || '') + ' • ' + (v.mmNumero || '') + '</small></div>';
+    }
+    dashMM.innerHTML = html;
+  }
+
+  var dashVers = document.getElementById('dash-vers');
+  var derniers = vers.filter(function(v) { return !v.archive; }).sort(function(a,b) { return new Date(b.date) - new Date(a.date); }).slice(0, 5);
+  if (derniers.length === 0) dashVers.innerHTML = '<div class="empty">Aucun versement</div>';
+  else {
+    var html2 = '';
+    for (var p = 0; p < derniers.length; p++) {
+      var vv = derniers[p];
+      var m = null;
+      for (var q = 0; q < membres.length; q++) if (membres[q].id === vv.membreId) { m = membres[q]; break; }
+      html2 += '<div style="padding:8px 0;border-bottom:1px solid #eee;font-size:13px"><strong>' + (m ? m.nom + ' ' + m.postnom : 'Inconnu') + '</strong> - ' + fmtMontant(vv.montant) + ' ' + vv.devise + '</div>';
+    }
+    dashVers.innerHTML = html2;
+  }
+  var dashRet = document.getElementById('dash-retards');
+  var moisA = new Date().getMonth() + 1;
+  var anneeA = new Date().getFullYear();
+  var retards = [];
+  for (var r = 0; r < actifs.length; r++) {
+    var mm = actifs[r];
+    if (mm.categorie === 'Honneur') continue;
+    var paye = false;
+    for (var s = 0; s < vers.length; s++) {
+      var vv2 = vers[s];
+      if (vv2.archive) continue;
+      if (vv2.membreId === mm.id && vv2.motif.indexOf('Cotisation') >= 0) {
+        var dv = new Date(vv2.date);
+        if (dv.getMonth() + 1 === moisA && dv.getFullYear() === anneeA) { paye = true; break; }
+      }
+    }
+    if (!paye) retards.push(mm);
+  }
+  if (retards.length === 0) dashRet.innerHTML = '<div class="empty">Aucun retard</div>';
+  else {
+    var html3 = '';
+    var lim = Math.min(retards.length, 5);
+    for (var t = 0; t < lim; t++) html3 += '<div style="padding:6px 0;font-size:13px">⚠️ ' + retards[t].nom + ' ' + retards[t].postnom + '</div>';
+    dashRet.innerHTML = html3;
+  }
+}
+
+function ouvrirMembre() {
+  ouvrir('modal-membre');
+  document.getElementById('titre-modal-membre').textContent = '📝 Fiche d\'adhésion';
+  document.getElementById('m-id').value = '';
+  var ids = ['m-nom','m-postnom','m-prenom','m-tel','m-email','m-adresse','m-entreprise','m-poste','m-structure'];
+  for (var i = 0; i < ids.length; i++) document.getElementById(ids[i]).value = '';
+  document.getElementById('m-naiss').value = '';
+  document.getElementById('m-sexe').value = 'M';
+  document.getElementById('m-statut').value = 'Indépendant';
+  document.getElementById('m-domaine').value = 'Peinture';
+  document.getElementById('m-cat').value = 'Ordinaire';
+  document.getElementById('bloc-entreprise').style.display = 'none';
+}
+function modifierMembre(mid) {
+  var m = lire(CLE.MEMBRES).find(function(x) { return x.id === mid; });
+  if (!m) return;
+  ouvrirMembre();
+  document.getElementById('titre-modal-membre').textContent = '✏️ Modifier le membre';
+  document.getElementById('m-id').value = m.id;
+  document.getElementById('m-nom').value = m.nom;
+  document.getElementById('m-postnom').value = m.postnom;
+  document.getElementById('m-prenom').value = m.prenom;
+  document.getElementById('m-sexe').value = m.sexe;
+  document.getElementById('m-naiss').value = m.dateNaiss || '';
+  document.getElementById('m-tel').value = m.telephone;
+  document.getElementById('m-email').value = m.email || '';
+  document.getElementById('m-adresse').value = m.adresse || '';
+  document.getElementById('m-statut').value = m.statutPro || 'Indépendant';
+  document.getElementById('m-entreprise').value = m.entreprise || '';
+  document.getElementById('m-poste').value = m.poste || '';
+  document.getElementById('m-domaine').value = m.domaine || 'Peinture';
+  document.getElementById('m-cat').value = m.categorie;
+  document.getElementById('m-structure').value = m.structure || '';
+  toggleEntreprise();
+}
+function toggleEntreprise() {
+  var v = document.getElementById('m-statut').value;
+  document.getElementById('bloc-entreprise').style.display = (v === 'Salarié' || v === 'Fonctionnaire') ? 'block' : 'none';
+}
+function sauverMembre() {
+  var nom = document.getElementById('m-nom').value.trim();
+  var postnom = document.getElementById('m-postnom').value.trim();
+  var prenom = document.getElementById('m-prenom').value.trim();
+  var tel = document.getElementById('m-tel').value.trim();
+  if (!nom || !postnom || !prenom || !tel) { alert('Remplissez les champs *'); return; }
+  var membres = lire(CLE.MEMBRES);
+  var mid = document.getElementById('m-id').value;
+  if (mid) {
+    for (var i = 0; i < membres.length; i++) {
+      if (membres[i].id === mid) {
+        membres[i].nom = nom; membres[i].postnom = postnom; membres[i].prenom = prenom;
+        membres[i].sexe = document.getElementById('m-sexe').value;
+        membres[i].dateNaiss = document.getElementById('m-naiss').value;
+        membres[i].telephone = tel;
+        membres[i].email = document.getElementById('m-email').value.trim();
+        membres[i].adresse = document.getElementById('m-adresse').value.trim();
+        membres[i].statutPro = document.getElementById('m-statut').value;
+        membres[i].entreprise = document.getElementById('m-entreprise').value.trim();
+        membres[i].poste = document.getElementById('m-poste').value.trim();
+        membres[i].domaine = document.getElementById('m-domaine').value;
+        membres[i].categorie = document.getElementById('m-cat').value;
+        membres[i].structure = document.getElementById('m-structure').value.trim();
+        break;
+      }
+    }
+    ecrire(CLE.MEMBRES, membres);
+    fermer('modal-membre');
+    afficherMembres();
+    afficherDashboard();
+    alert('Membre modifié !');
+    return;
+  }
+  var numero = 'ASARPE-' + new Date().getFullYear() + '-' + String(membres.length + 1).padStart(3, '0');
+  membres.push({
+    id: id(), numero: numero, nom: nom, postnom: postnom, prenom: prenom,
+    sexe: document.getElementById('m-sexe').value,
+    dateNaiss: document.getElementById('m-naiss').value,
+    telephone: tel,
+    email: document.getElementById('m-email').value.trim(),
+    adresse: document.getElementById('m-adresse').value.trim(),
+    statutPro: document.getElementById('m-statut').value,
+    entreprise: document.getElementById('m-entreprise').value.trim(),
+    poste: document.getElementById('m-poste').value.trim(),
+    domaine: document.getElementById('m-domaine').value,
+    categorie: document.getElementById('m-cat').value,
+    structure: document.getElementById('m-structure').value.trim(),
+    dateAdhesion: new Date().toISOString().split('T')[0],
+    statut: 'Actif',
+    archive: false
+  });
+  ecrire(CLE.MEMBRES, membres);
+  fermer('modal-membre');
+  afficherMembres();
+  afficherDashboard();
+  alert('Membre enregistré ! N° : ' + numero);
+}
+function afficherMembres() {
+  var membres = lire(CLE.MEMBRES);
+  var rech = document.getElementById('rech-membre').value.toLowerCase();
+  var voirArchives = document.getElementById('voir-archives').checked;
+  var tbody = document.getElementById('tbody-membres');
+  var vide = document.getElementById('vide-membres');
+  var res = [];
+  for (var i = 0; i < membres.length; i++) {
+    var m = membres[i];
+    if (!voirArchives && m.archive) continue;
+    var txt = (m.nom + ' ' + m.postnom + ' ' + m.prenom + ' ' + m.numero + ' ' + m.telephone).toLowerCase();
+    if (txt.indexOf(rech) >= 0) res.push(m);
+  }
+  if (res.length === 0) { tbody.innerHTML = ''; vide.style.display = 'block'; return; }
+  vide.style.display = 'none';
+  var html = '';
+  for (var j = 0; j < res.length; j++) {
+    var x = res[j];
+    var cls = x.categorie === 'Effectif' ? 'badge-success' : (x.categorie === 'Honneur' ? 'badge-warning' : 'badge-info');
+    var clsArch = x.archive ? ' archive-badge' : '';
+    html += '<tr class="' + clsArch + '"><td><small>' + x.numero + '</small></td>' +
+      '<td><strong>' + x.nom + ' ' + x.postnom + '</strong>' + (x.archive ? ' <span class="badge badge-gray">Archivé</span>' : '') + '</td>' +
+      '<td><span class="badge ' + cls + '">' + x.categorie + '</span></td>' +
+      '<td>' + x.telephone + '</td>' +
+      '<td><button class="btn btn-info btn-sm" onclick="modifierMembre(\'' + x.id + '\')">✏️</button> ' +
+      '<button class="btn btn-warning btn-sm" onclick="archiverMembre(\'' + x.id + '\')">📦</button> ' +
+      '<button class="btn btn-primary btn-sm" onclick="partagerMembre(\'' + x.id + '\')">📤</button> ' +
+      '<button class="btn btn-danger btn-sm" onclick="supprMembre(\'' + x.id + '\')">X</button></td></tr>';
+  }
+  tbody.innerHTML = html;
+}
+function archiverMembre(mid) {
+  var membres = lire(CLE.MEMBRES);
+  for (var i = 0; i < membres.length; i++) {
+    if (membres[i].id === mid) {
+      membres[i].archive = !membres[i].archive;
+      ecrire(CLE.MEMBRES, membres);
+      afficherMembres();
+      afficherDashboard();
+      alert(membres[i].archive ? 'Membre archivé' : 'Membre restauré');
+      return;
+    }
+  }
+}
+function partagerMembre(mid) {
+  var m = lire(CLE.MEMBRES).find(function(x) { return x.id === mid; });
+  if (!m) return;
+  var txt = '👤 MEMBRE ASARPE\n\nN° : ' + m.numero + '\nNom : ' + m.nom + ' ' + m.postnom + ' ' + m.prenom +
+    '\nSexe : ' + m.sexe + '\nTél : ' + m.telephone + '\nEmail : ' + (m.email || '-') +
+    '\nAdresse : ' + (m.adresse || '-') + '\nCatégorie : ' + m.categorie + '\nDomaine : ' + m.domaine;
+  document.getElementById('p-dest').value = m.telephone || '';
+  document.getElementById('p-msg').value = txt;
+  ouvrir('modal-partage');
+}
+function supprMembre(mid) {
+  if (!confirm('Supprimer définitivement ce membre et ses versements ?')) return;
+  var membres = lire(CLE.MEMBRES).filter(function(m) { return m.id !== mid; });
+  var vers = lire(CLE.VERS).filter(function(v) { return v.membreId !== mid; });
+  ecrire(CLE.MEMBRES, membres);
+  ecrire(CLE.VERS, vers);
+  afficherMembres();
+  afficherDashboard();
+}
+
+function ouvrirComite() {
+  ouvrir('modal-comite');
+  document.getElementById('titre-modal-comite').textContent = '🏛️ Nouveau membre du comité';
+  document.getElementById('c-id').value = '';
+  var ids = ['c-nom','c-postnom','c-prenom','c-tel','c-email'];
+  for (var i = 0; i < ids.length; i++) document.getElementById(ids[i]).value = '';
+  document.getElementById('c-debut').value = '';
+  document.getElementById('c-fin').value = '';
+}
+function modifierComite(cid) {
+  var c = lire(CLE.COMITE).find(function(x) { return x.id === cid; });
+  if (!c) return;
+  ouvrirComite();
+  document.getElementById('titre-modal-comite').textContent = '✏️ Modifier le membre';
+  document.getElementById('c-id').value = c.id;
+  document.getElementById('c-poste').value = c.poste;
+  document.getElementById('c-nom').value = c.nom;
+  document.getElementById('c-postnom').value = c.postnom;
+  document.getElementById('c-prenom').value = c.prenom || '';
+  document.getElementById('c-tel').value = c.telephone;
+  document.getElementById('c-email').value = c.email || '';
+  document.getElementById('c-debut').value = c.debut || '';
+  document.getElementById('c-fin').value = c.fin || '';
+}
+function sauverComite() {
+  var nom = document.getElementById('c-nom').value.trim();
+  var postnom = document.getElementById('c-postnom').value.trim();
+  var tel = document.getElementById('c-tel').value.trim();
+  if (!nom || !postnom || !tel) { alert('Remplissez les champs *'); return; }
+  var comite = lire(CLE.COMITE);
+  var cid = document.getElementById('c-id').value;
+  if (cid) {
+    for (var i = 0; i < comite.length; i++) {
+      if (comite[i].id === cid) {
+        comite[i].poste = document.getElementById('c-poste').value;
+        comite[i].nom = nom; comite[i].postnom = postnom;
+        comite[i].prenom = document.getElementById('c-prenom').value.trim();
+        comite[i].telephone = tel;
+        comite[i].email = document.getElementById('c-email').value.trim();
+        comite[i].debut = document.getElementById('c-debut').value;
+        comite[i].fin = document.getElementById('c-fin').value;
+        break;
+      }
+    }
+    ecrire(CLE.COMITE, comite);
+    fermer('modal-comite');
+    afficherComite();
+    afficherDashboard();
+    alert('Modifié !');
+    return;
+  }
+  comite.push({
+    id: id(), poste: document.getElementById('c-poste').value,
+    nom: nom, postnom: postnom, prenom: document.getElementById('c-prenom').value.trim(),
+    telephone: tel, email: document.getElementById('c-email').value.trim(),
+    debut: document.getElementById('c-debut').value,
+    fin: document.getElementById('c-fin').value
+  });
+  ecrire(CLE.COMITE, comite);
+  fermer('modal-comite');
+  afficherComite();
+  afficherDashboard();
+  alert('Ajouté !');
+}
+function afficherComite() {
+  var comite = lire(CLE.COMITE);
+  var rech = document.getElementById('rech-comite').value.toLowerCase();
+  var tbody = document.getElementById('tbody-comite');
+  var vide = document.getElementById('vide-comite');
+  var res = [];
+  for (var i = 0; i < comite.length; i++) {
+    var c = comite[i];
+    var txt = (c.nom + ' ' + c.postnom + ' ' + c.poste + ' ' + c.telephone).toLowerCase();
+    if (txt.indexOf(rech) >= 0) res.push(c);
+  }
+  if (res.length === 0) { tbody.innerHTML = ''; vide.style.display = 'block'; return; }
+  vide.style.display = 'none';
+  var html = '';
+  for (var j = 0; j < res.length; j++) {
+    var x = res[j];
+    html += '<tr><td><span class="badge badge-info">' + x.poste + '</span></td>' +
+      '<td><strong>' + x.nom + ' ' + x.postnom + '</strong></td>' +
+      '<td>' + x.telephone + '</td>' +
+      '<td><button class="btn btn-info btn-sm" onclick="modifierComite(\'' + x.id + '\')">✏️</button> ' +
+      '<button class="btn btn-primary btn-sm" onclick="partagerComite(\'' + x.id + '\')">📤</button> ' +
+      '<button class="btn btn-danger btn-sm" onclick="supprComite(\'' + x.id + '\')">X</button></td></tr>';
+  }
+  tbody.innerHTML = html;
+}
+function partagerComite(cid) {
+  var c = lire(CLE.COMITE).find(function(x) { return x.id === cid; });
+  if (!c) return;
+  var txt = '🏛️ COMITÉ ASARPE\n\nPoste : ' + c.poste + '\nNom : ' + c.nom + ' ' + c.postnom + ' ' + (c.prenom || '') +
+    '\nTél : ' + c.telephone + '\nEmail : ' + (c.email || '-') +
+    '\nMandat : ' + fmtDate(c.debut) + ' → ' + fmtDate(c.fin);
+  document.getElementById('p-dest').value = c.telephone || '';
+  document.getElementById('p-msg').value = txt;
+  ouvrir('modal-partage');
+}
+function supprComite(cid) {
+  if (!confirm('Supprimer ?')) return;
+  var comite = lire(CLE.COMITE).filter(function(c) { return c.id !== cid; });
+  ecrire(CLE.COMITE, comite);
+  afficherComite();
+  afficherDashboard();
+}
+function ouvrirReunion() {
+  ouvrir('modal-reunion');
+  document.getElementById('r-date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('r-ordre').value = '';
+  document.getElementById('r-pv').value = '';
+}
+function sauverReunion() {
+  var date = document.getElementById('r-date').value;
+  var ordre = document.getElementById('r-ordre').value.trim();
+  if (!date || !ordre) { alert('Date et ordre *'); return; }
+  var reunions = lire(CLE.REUNIONS);
+  reunions.push({
+    id: id(), date: date, type: document.getElementById('r-type').value,
+    ordre: ordre, pv: document.getElementById('r-pv').value.trim()
+  });
+  ecrire(CLE.REUNIONS, reunions);
+  fermer('modal-reunion');
+  afficherReunions();
+  alert('Enregistrée !');
+}
+function afficherReunions() {
+  var reunions = lire(CLE.REUNIONS);
+  var div = document.getElementById('liste-reunions');
+  if (reunions.length === 0) { div.innerHTML = '<div class="empty">Aucune réunion</div>'; return; }
+  var sorted = reunions.slice().sort(function(a,b) { return new Date(b.date) - new Date(a.date); });
+  var html = '';
+  for (var i = 0; i < sorted.length; i++) {
+    var r = sorted[i];
+    html += '<div class="formation-card"><h4>📅 ' + fmtDate(r.date) + ' - ' + r.type + '</h4>' +
+      '<p><strong>Ordre :</strong> ' + r.ordre + '</p>' +
+      (r.pv ? '<p><strong>PV :</strong> ' + r.pv + '</p>' : '') +
+      '<div class="actions"><button class="btn btn-danger btn-sm" onclick="supprReunion(\'' + r.id + '\')">X</button></div></div>';
+  }
+  div.innerHTML = html;
+}
+function supprReunion(rid) {
+  if (!confirm('Supprimer ?')) return;
+  var reunions = lire(CLE.REUNIONS).filter(function(r) { return r.id !== rid; });
+  ecrire(CLE.REUNIONS, reunions);
+  afficherReunions();
+}
+
+function remplirSelectMembres() {
+  var membres = lire(CLE.MEMBRES).filter(function(m) { return !m.archive; });
+  var sel = document.getElementById('v-membre');
+  if (!sel) return;
+  var html = '<option value="">-- Sélectionner --</option>';
+  for (var i = 0; i < membres.length; i++) {
+    var m = membres[i];
+    html += '<option value="' + m.id + '">' + m.numero + ' - ' + m.nom + ' ' + m.postnom + '</option>';
+  }
+  sel.innerHTML = html;
+  var d = document.getElementById('v-date');
+  if (d && !d.value) d.value = new Date().toISOString().split('T')[0];
+  chargerMotifs();
+}
+function enregistrerVers() {
+  var membreId = document.getElementById('v-membre').value;
+  var date = document.getElementById('v-date').value;
+  var montant = document.getElementById('v-montant').value;
+  if (!membreId || !date || !montant || Number(montant) <= 0) { alert('Remplissez les champs *'); return; }
+  var motif = document.getElementById('v-motif').value;
+  if (motif === 'Autre') {
+    var custom = document.getElementById('v-motif-autre').value.trim();
+    if (!custom) { alert('Précisez le motif'); return; }
+    motif = custom;
+    ajouterMotifCustom(custom);
+  }
+  var mode = document.getElementById('v-mode').value;
+  var vNew = {
+    id: id(), membreId: membreId, date: date, montant: Number(montant),
+    devise: document.getElementById('v-devise').value,
+    motif: motif,
+    mode: mode,
+    observation: document.getElementById('v-obs').value.trim(),
+    enregistreLe: new Date().toISOString(),
+    archive: false
+  };
+  if (mode === 'Mobile Money') {
+    vNew.mmOperateur = document.getElementById('v-mm-operateur').value;
+    vNew.mmNumero = document.getElementById('v-mm-numero').value.trim();
+    vNew.mmRef = document.getElementById('v-mm-ref').value.trim();
+    vNew.mmExpediteur = document.getElementById('v-mm-expediteur').value.trim();
+    if (!vNew.mmNumero || !vNew.mmRef) { alert('Remplissez le numéro et la référence Mobile Money'); return; }
+  }
+  var vers = lire(CLE.VERS);
+  vers.push(vNew);
+  ecrire(CLE.VERS, vers);
+  document.getElementById('v-montant').value = '';
+  document.getElementById('v-obs').value = '';
+  document.getElementById('v-membre').value = '';
+  document.getElementById('v-motif-autre').value = '';
+  document.getElementById('v-mm-numero').value = '';
+  document.getElementById('v-mm-ref').value = '';
+  document.getElementById('v-mm-expediteur').value = '';
+  document.getElementById('bloc-mm').style.display = 'none';
+  document.getElementById('bloc-autre-motif').style.display = 'none';
+  afficherVers();
+  afficherDashboard();
+  alert('Enregistré !');
+}
+function afficherVers() {
+  var vers = lire(CLE.VERS);
+  var membres = lire(CLE.MEMBRES);
+  var rech = document.getElementById('rech-vers').value.toLowerCase();
+  var voirArchives = document.getElementById('voir-archives-vers').checked;
+  var tbody = document.getElementById('tbody-vers');
+  var vide = document.getElementById('vide-vers');
+  var res = [];
+  for (var i = 0; i < vers.length; i++) {
+    var v = vers[i];
+    if (!voirArchives && v.archive) continue;
+    var m = null;
+    for (var k = 0; k < membres.length; k++) if (membres[k].id === v.membreId) { m = membres[k]; break; }
+    var txt = (v.motif + ' ' + v.devise + ' ' + v.mode + ' ' + (v.mmExpediteur || '') + ' ' + (m ? m.nom + ' ' + m.postnom : '')).toLowerCase();
+    if (txt.indexOf(rech) >= 0) res.push({ v: v, m: m });
+  }
+  if (res.length === 0) { tbody.innerHTML = ''; vide.style.display = 'block'; return; }
+  vide.style.display = 'none';
+  res.sort(function(a,b) { return new Date(b.v.date) - new Date(a.v.date); });
+  var html = '';
+  for (var j = 0; j < res.length; j++) {
+    var x = res[j];
+    var clsArch = x.v.archive ? ' archive-badge' : '';
+    var modeIcon = x.v.mode === 'Mobile Money' ? '📱 ' : '';
+    html += '<tr class="' + clsArch + '"><td>' + fmtDate(x.v.date) + '</td>' +
+      '<td>' + (x.m ? x.m.nom + ' ' + x.m.postnom : 'Inconnu') + '</td>' +
+      '<td><strong>' + fmtMontant(x.v.montant) + ' ' + x.v.devise + '</strong></td>' +
+      '<td>' + modeIcon + x.v.mode + '</td>' +
+      '<td><button class="btn btn-info btn-sm" onclick="modifierVers(\'' + x.v.id + '\')">✏️</button> ' +
+      '<button class="btn btn-warning btn-sm" onclick="archiverVers(\'' + x.v.id + '\')">📦</button> ' +
+      '<button class="btn btn-primary btn-sm" onclick="partagerVers(\'' + x.v.id + '\')">📤</button> ' +
+      '<button class="btn btn-danger btn-sm" onclick="supprVers(\'' + x.v.id + '\')">X</button></td></tr>';
+  }
+  tbody.innerHTML = html;
+}
+function modifierVers(vid) {
+  alert('Pour modifier un versement, supprimez-le et recréez-le.\n\n(La modification directe sera ajoutée prochainement)');
+}
+function archiverVers(vid) {
+  var vers = lire(CLE.VERS);
+  for (var i = 0; i < vers.length; i++) {
+    if (vers[i].id === vid) {
+      vers[i].archive = !vers[i].archive;
+      ecrire(CLE.VERS, vers);
+      afficherVers();
+      afficherDashboard();
+      alert(vers[i].archive ? 'Versement archivé' : 'Versement restauré');
+      return;
+    }
+  }
+}
+function partagerVers(vid) {
+  var v = lire(CLE.VERS).find(function(x) { return x.id === vid; });
+  if (!v) return;
+  var m = lire(CLE.MEMBRES).find(function(x) { return x.id === v.membreId; });
+  var txt = '💵 VERSEMENT ASARPE\n\nMembre : ' + (m ? m.nom + ' ' + m.postnom : 'Inconnu') +
+    '\nDate : ' + fmtDate(v.date) + '\nMontant : ' + fmtMontant(v.montant) + ' ' + v.devise +
+    '\nMotif : ' + v.motif + '\nMode : ' + v.mode;
+  if (v.mode === 'Mobile Money') {
+    txt += '\n\n📱 Mobile Money :\nOpérateur : ' + (v.mmOperateur || '-') +
+      '\nNuméro : ' + (v.mmNumero || '-') + '\nRéférence : ' + (v.mmRef || '-') +
+      '\nExpéditeur : ' + (v.mmExpediteur || '-');
+  }
+  document.getElementById('p-dest').value = m ? m.telephone : '';
+  document.getElementById('p-msg').value = txt;
+  ouvrir('modal-partage');
+}
+function supprVers(vid) {
+  if (!confirm('Supprimer ?')) return;
+  var vers = lire(CLE.VERS).filter(function(v) { return v.id !== vid; });
+  ecrire(CLE.VERS, vers);
+  afficherVers();
+  afficherDashboard();
+}
+
+function sauverParams() {
+  ecrire(CLE.PARAMS, {
+    ordinaire: Number(document.getElementById('cot-ord').value),
+    effectif: Number(document.getElementById('cot-eff').value),
+    honneur: Number(document.getElementById('cot-hon').value),
+    comite: Number(document.getElementById('cot-com').value)
+  });
+  alert('Paramètres sauvegardés !');
+}
+function chargerParams() {
+  var p = lire(CLE.PARAMS);
+  if (p && p.ordinaire) {
+    document.getElementById('cot-ord').value = p.ordinaire;
+    document.getElementById('cot-eff').value = p.effectif;
+    document.getElementById('cot-hon').value = p.honneur;
+    document.getElementById('cot-com').value = p.comite;
+  } else {
+    ecrire(CLE.PARAMS, { ordinaire: 5000, effectif: 10000, honneur: 20000, comite: 15000 });
+  }
+}
+function afficherCotisations() {
+  var mois = Number(document.getElementById('suivi-mois').value);
+  var annee = Number(document.getElementById('suivi-annee').value);
+  var membres = lire(CLE.MEMBRES).filter(function(m) { return !m.archive; });
+  var vers = lire(CLE.VERS);
+  var params = lire(CLE.PARAMS);
+  if (!params || !params.ordinaire) params = { ordinaire: 5000, effectif: 10000, honneur: 20000 };
+  var tbody = document.getElementById('tbody-cot');
+  var vide = document.getElementById('vide-cot');
+  if (membres.length === 0) { tbody.innerHTML = ''; vide.style.display = 'block'; vide.textContent = 'Aucun membre'; return; }
+  vide.style.display = 'none';
+  var html = '';
+  for (var i = 0; i < membres.length; i++) {
+    var m = membres[i];
+    var montant = m.categorie === 'Effectif' ? params.effectif : (m.categorie === 'Honneur' ? params.honneur : params.ordinaire);
+    var paye = false;
+    for (var j = 0; j < vers.length; j++) {
+      var v = vers[j];
+      if (v.archive) continue;
+      if (v.membreId === m.id && v.motif.indexOf('Cotisation') >= 0) {
+        var dv = new Date(v.date);
+        if (dv.getMonth() + 1 === mois && dv.getFullYear() === annee) { paye = true; break; }
+      }
+    }
+    var st = paye ? '<span class="badge badge-success">Payé</span>' : '<span class="badge badge-danger">Non payé</span>';
+    html += '<tr><td>' + m.nom + ' ' + m.postnom + '</td><td>' + m.categorie + '</td>' +
+      '<td>' + fmtMontant(montant) + ' FC</td><td>' + st + '</td>' +
+      '<td><button class="btn btn-success btn-sm" onclick="payerCot(\'' + m.id + '\',' + mois + ',' + annee + ',' + montant + ')">Payer</button></td></tr>';
+  }
+  tbody.innerHTML = html;
+}
+function payerCot(mid, mois, annee, montant) {
+  if (!confirm('Payer ' + fmtMontant(montant) + ' FC ?')) return;
+  var vers = lire(CLE.VERS);
+  vers.push({
+    id: id(), membreId: mid, date: new Date().toISOString().split('T')[0],
+    montant: montant, devise: 'FC', motif: 'Cotisation mensuelle',
+    mode: 'Espèces', observation: 'Mois ' + mois + '/' + annee,
+    enregistreLe: new Date().toISOString(), archive: false
+  });
+  ecrire(CLE.VERS, vers);
+  afficherCotisations();
+  afficherDashboard();
+  alert('Cotisation enregistrée !');
+}
+
+function remplirSelectArtistes() {
+  var membres = lire(CLE.MEMBRES).filter(function(m) { return !m.archive; });
+  var sel = document.getElementById('o-artiste');
+  if (!sel) return;
+  var html = '<option value="">-- Sélectionner --</option>';
+  for (var i = 0; i < membres.length; i++) {
+    var m = membres[i];
+    html += '<option value="' + m.id + '">' + m.nom + ' ' + m.postnom + '</option>';
+  }
+  sel.innerHTML = html;
+}
+function ouvrirOeuvre() {
+  ouvrir('modal-oeuvre');
+  document.getElementById('titre-modal-oeuvre').textContent = '🖼️ Nouvelle œuvre';
+  document.getElementById('o-id').value = '';
+  remplirSelectArtistes();
+  var ids = ['o-titre','o-dim','o-desc','o-photo'];
+  for (var i = 0; i < ids.length; i++) document.getElementById(ids[i]).value = '';
+  document.getElementById('o-prix').value = '';
+  document.getElementById('o-annee').value = new Date().getFullYear();
+  document.getElementById('o-statut').value = 'Disponible';
+}
+function modifierOeuvre(oid) {
+  var o = lire(CLE.OEUVRES).find(function(x) { return x.id === oid; });
+  if (!o) return;
+  ouvrirOeuvre();
+  document.getElementById('titre-modal-oeuvre').textContent = '✏️ Modifier l\'œuvre';
+  document.getElementById('o-id').value = o.id;
+  document.getElementById('o-titre').value = o.titre;
+  document.getElementById('o-artiste').value = o.artisteId;
+  document.getElementById('o-technique').value = o.technique;
+  document.getElementById('o-annee').value = o.annee;
+  document.getElementById('o-dim').value = o.dimensions || '';
+  document.getElementById('o-prix').value = o.prix || '';
+  document.getElementById('o-desc').value = o.description || '';
+  document.getElementById('o-photo').value = o.photo || '';
+  document.getElementById('o-statut').value = o.statut;
+}
+function sauverOeuvre() {
+  var titre = document.getElementById('o-titre').value.trim();
+  var artisteId = document.getElementById('o-artiste').value;
+  if (!titre || !artisteId) { alert('Titre et artiste *'); return; }
+  var oeuvres = lire(CLE.OEUVRES);
+  var oid = document.getElementById('o-id').value;
+  if (oid) {
+    for (var i = 0; i < oeuvres.length; i++) {
+      if (oeuvres[i].id === oid) {
+        oeuvres[i].titre = titre; oeuvres[i].artisteId = artisteId;
+        oeuvres[i].technique = document.getElementById('o-technique').value;
+        oeuvres[i].annee = document.getElementById('o-annee').value;
+        oeuvres[i].dimensions = document.getElementById('o-dim').value.trim();
+        oeuvres[i].prix = Number(document.getElementById('o-prix').value) || 0;
+        oeuvres[i].description = document.getElementById('o-desc').value.trim();
+        oeuvres[i].photo = document.getElementById('o-photo').value.trim();
+        oeuvres[i].statut = document.getElementById('o-statut').value;
+        break;
+      }
+    }
+    ecrire(CLE.OEUVRES, oeuvres);
+    fermer('modal-oeuvre');
+    afficherOeuvres();
+    afficherDashboard();
+    alert('Modifiée !');
+    return;
+  }
+  oeuvres.push({
+    id: id(), titre: titre, artisteId: artisteId,
+    technique: document.getElementById('o-technique').value,
+    annee: document.getElementById('o-annee').value,
+    dimensions: document.getElementById('o-dim').value.trim(),
+    prix: Number(document.getElementById('o-prix').value) || 0,
+    description: document.getElementById('o-desc').value.trim(),
+    photo: document.getElementById('o-photo').value.trim(),
+    statut: document.getElementById('o-statut').value,
+    dateAjout: new Date().toISOString().split('T')[0]
+  });
+  ecrire(CLE.OEUVRES, oeuvres);
+  fermer('modal-oeuvre');
+  afficherOeuvres();
+  afficherDashboard();
+  alert('Œuvre ajoutée !');
+}
+function afficherOeuvres() {
+  var oeuvres = lire(CLE.OEUVRES);
+  var membres = lire(CLE.MEMBRES);
+  var rech = document.getElementById('rech-oeuvre').value.toLowerCase();
+  var div = document.getElementById('galerie');
+  var vide = document.getElementById('vide-oeuvres');
+  var res = [];
+  for (var i = 0; i < oeuvres.length; i++) {
+    var o = oeuvres[i];
+    var a = null;
+    for (var k = 0; k < membres.length; k++) if (membres[k].id === o.artisteId) { a = membres[k]; break; }
+    var txt = (o.titre + ' ' + o.technique + ' ' + o.statut + ' ' + (a ? a.nom + ' ' + a.postnom : '')).toLowerCase();
+    if (txt.indexOf(rech) >= 0) res.push({ o: o, a: a });
+  }
+  if (res.length === 0) { div.innerHTML = ''; vide.style.display = 'block'; return; }
+  vide.style.display = 'none';
+  var html = '';
+  for (var j = 0; j < res.length; j++) {
+    var x = res[j];
+    var img = x.o.photo ? '<img src="' + x.o.photo + '" alt="oeuvre">' : '🖼️';
+    var cls = x.o.statut === 'Vendu' ? 'badge-danger' : (x.o.statut === 'Disponible' ? 'badge-success' : 'badge-warning');
+    html += '<div class="oeuvre-card"><div class="img">' + img + '</div>' +
+      '<div class="info"><h4>' + x.o.titre + '</h4>' +
+      '<p>👤 ' + (x.a ? x.a.nom + ' ' + x.a.postnom : 'Inconnu') + '</p>' +
+      '<p>🎨 ' + x.o.technique + ' (' + x.o.annee + ')</p>' +
+      '<p>📏 ' + (x.o.dimensions || '-') + '</p>' +
+      '<p>💰 ' + fmtMontant(x.o.prix) + ' FC</p>' +
+      '<span class="badge ' + cls + '">' + x.o.statut + '</span></div>' +
+      '<div class="actions">' +
+      '<button class="btn btn-info btn-sm" onclick="modifierOeuvre(\'' + x.o.id + '\')">✏️</button> ' +
+      '<button class="btn btn-primary btn-sm" onclick="partagerOeuvre(\'' + x.o.id + '\')">📤</button> ' +
+      '<button class="btn btn-danger btn-sm" onclick="supprOeuvre(\'' + x.o.id + '\')">X</button></div></div>';
+  }
+  div.innerHTML = html;
+}
+function partagerOeuvre(oid) {
+  var o = lire(CLE.OEUVRES).find(function(x) { return x.id === oid; });
+  var membres = lire(CLE.MEMBRES);
+  var a = membres.find(function(m) { return m.id === o.artisteId; });
+  var txt = '🖼️ OEUVRE ASARPE\n\n' + o.titre +
+    '\nArtiste : ' + (a ? a.nom + ' ' + a.postnom : 'Inconnu') +
+    '\nTechnique : ' + o.technique + ' (' + o.annee + ')' +
+    '\nDimensions : ' + (o.dimensions || '-') +
+    '\nPrix : ' + fmtMontant(o.prix) + ' FC' +
+    '\nStatut : ' + o.statut +
+    '\n\n' + (o.description || '');
+  document.getElementById('p-dest').value = '';
+  document.getElementById('p-msg').value = txt;
+  ouvrir('modal-partage');
+}
+function supprOeuvre(oid) {
+  if (!confirm('Supprimer ?')) return;
+  var oeuvres = lire(CLE.OEUVRES).filter(function(o) { return o.id !== oid; });
+  ecrire(CLE.OEUVRES, oeuvres);
+  afficherOeuvres();
+  afficherDashboard();
+}
+
+function ouvrirFormation() {
+  ouvrir('modal-formation');
+  var ids = ['f-titre','f-formateur','f-lieu','f-desc'];
+  for (var i = 0; i < ids.length; i++) document.getElementById(ids[i]).value = '';
+  document.getElementById('f-debut').value = '';
+  document.getElementById('f-fin').value = '';
+  document.getElementById('f-places').value = 20;
+  document.getElementById('f-frais').value = 0;
+}
+function sauverFormation() {
+  var titre = document.getElementById('f-titre').value.trim();
+  var formateur = document.getElementById('f-formateur').value.trim();
+  if (!titre || !formateur) { alert('Titre et formateur *'); return; }
+  var formations = lire(CLE.FORMATIONS);
+  formations.push({
+    id: id(), titre: titre, formateur: formateur,
+    debut: document.getElementById('f-debut').value,
+    fin: document.getElementById('f-fin').value,
+    lieu: document.getElementById('f-lieu').value.trim(),
+    places: Number(document.getElementById('f-places').value) || 20,
+    frais: Number(document.getElementById('f-frais').value) || 0,
+    description: document.getElementById('f-desc').value.trim(),
+    inscrits: []
+  });
+  ecrire(CLE.FORMATIONS, formations);
+  fermer('modal-formation');
+  afficherFormations();
+  alert('Formation ajoutée !');
+}
+function afficherFormations() {
+  var formations = lire(CLE.FORMATIONS);
+  var rech = document.getElementById('rech-formation').value.toLowerCase();
+  var div = document.getElementById('liste-formations');
+  var vide = document.getElementById('vide-formations');
+  var res = [];
+  for (var i = 0; i < formations.length; i++) {
+    var f = formations[i];
+    var txt = (f.titre + ' ' + f.formateur + ' ' + f.lieu).toLowerCase();
+    if (txt.indexOf(rech) >= 0) res.push(f);
+  }
+  if (res.length === 0) { div.innerHTML = ''; vide.style.display = 'block'; return; }
+  vide.style.display = 'none';
+  var html = '';
+  for (var j = 0; j < res.length; j++) {
+    var x = res[j];
+    html += '<div class="formation-card"><h4>🎓 ' + x.titre + '</h4>' +
+      '<p><strong>Formateur :</strong> ' + x.formateur + '</p>' +
+      '<p>📅 ' + fmtDate(x.debut) + ' → ' + fmtDate(x.fin) + '</p>' +
+      '<p>📍 ' + (x.lieu || '-') + '</p>' +
+      '<p>👥 Places : ' + (x.inscrits ? x.inscrits.length : 0) + '/' + x.places + '</p>' +
+      '<p>💰 ' + fmtMontant(x.frais) + ' FC</p>' +
+      (x.description ? '<p>📝 ' + x.description + '</p>' : '') +
+      '<div class="actions">' +
+      '<button class="btn btn-primary btn-sm" onclick="partagerFormation(\'' + x.id + '\')">📤</button> ' +
+      '<button class="btn btn-danger btn-sm" onclick="supprFormation(\'' + x.id + '\')">X</button></div></div>';
+  }
+  div.innerHTML = html;
+}
+function partagerFormation(fid) {
+  var f = lire(CLE.FORMATIONS).find(function(x) { return x.id === fid; });
+  var txt = '🎓 FORMATION ASARPE\n\n' + f.titre +
+    '\nFormateur : ' + f.formateur +
+    '\nDu ' + fmtDate(f.debut) + ' au ' + fmtDate(f.fin) +
+    '\nLieu : ' + (f.lieu || '-') +
+    '\nFrais : ' + fmtMontant(f.frais) + ' FC' +
+    '\nPlaces : ' + f.places +
+    '\n\n' + (f.description || '');
+  document.getElementById('p-dest').value = '';
+  document.getElementById('p-msg').value = txt;
+  ouvrir('modal-partage');
+}
+function supprFormation(fid) {
+  if (!confirm('Supprimer ?')) return;
+  var formations = lire(CLE.FORMATIONS).filter(function(f) { return f.id !== fid; });
+  ecrire(CLE.FORMATIONS, formations);
+  afficherFormations();
+}
+
+function rapportGlobal() {
+  var membres = lire(CLE.MEMBRES).filter(function(m) { return !m.archive; });
+  var vers = lire(CLE.VERS).filter(function(v) { return !v.archive; });
+  var comite = lire(CLE.COMITE);
+  var oeuvres = lire(CLE.OEUVRES);
+  var formations = lire(CLE.FORMATIONS);
+  var totalFC = 0, totalUSD = 0;
+  for (var i = 0; i < vers.length; i++) {
+    if (vers[i].devise === 'FC') totalFC += Number(vers[i].montant);
+    if (vers[i].devise === 'USD') totalUSD += Number(vers[i].montant);
+  }
+  var eff = 0, ord = 0, hon = 0;
+  for (var j = 0; j < membres.length; j++) {
+    if (membres[j].categorie === 'Effectif') eff++;
+    if (membres[j].categorie === 'Ordinaire') ord++;
+    if (membres[j].categorie === 'Honneur') hon++;
+  }
+  document.getElementById('apercu').innerHTML = '<div class="rapport-box">' +
+    '<h4>🌍 RAPPORT GLOBAL ASARPE</h4>' +
+    '<p><strong>Date :</strong> ' + new Date().toLocaleString('fr-FR') + '</p><hr>' +
+    '<p><strong>👥 Membres :</strong> ' + membres.length + '</p>' +
+    '<p>• Effectifs : ' + eff + '</p><p>• Ordinaires : ' + ord + '</p><p>• Honneur : ' + hon + '</p><hr>' +
+    '<p><strong>🏛️ Comité :</strong> ' + comite.length + '</p>' +
+    '<p><strong>🖼️ Œuvres :</strong> ' + oeuvres.length + '</p>' +
+    '<p><strong>🎓 Formations :</strong> ' + formations.length + '</p><hr>' +
+    '<p><strong>💰 Total FC :</strong> ' + fmtMontant(totalFC) + ' FC</p>' +
+    '<p><strong>💵 Total USD :</strong> ' + fmtMontant(totalUSD) + ' USD</p>' +
+    '<p><strong>📊 Versements :</strong> ' + vers.length + '</p></div>';
+}
+function rapportDetaille() {
+  var membres = lire(CLE.MEMBRES).filter(function(m) { return !m.archive; });
+  var vers = lire(CLE.VERS).filter(function(v) { return !v.archive; });
+  var liste = [];
+  for (var i = 0; i < membres.length; i++) {
+    var m = membres[i];
+    var fc = 0, usd = 0, c = 0;
+    for (var j = 0; j < vers.length; j++) {
+      if (vers[j].membreId === m.id) {
+        if (vers[j].devise === 'FC') fc += Number(vers[j].montant);
+        if (vers[j].devise === 'USD') usd += Number(vers[j].montant);
+        c++;
+      }
+    }
+    liste.push({ m: m, fc: fc, usd: usd, count: c });
+  }
+  liste.sort(function(a,b) { return (b.fc + b.usd) - (a.fc + a.usd); });
+  var html = '<div class="rapport-box"><h4>📋 RAPPORT DÉTAILLÉ</h4><hr>';
+  for (var k = 0; k < liste.length; k++) {
+    var x = liste[k];
+    html += '<p><strong>' + x.m.nom + ' ' + x.m.postnom + '</strong> (' + x.m.categorie + ')<br>' +
+      '<small>' + x.m.numero + ' • ' + x.m.telephone + '</small><br>' +
+      '💰 ' + fmtMontant(x.fc) + ' FC + ' + fmtMontant(x.usd) + ' USD (' + x.count + ' vers.)</p>';
+    if (k < liste.length - 1) html += '<hr>';
+  }
+  html += '</div>';
+  document.getElementById('apercu').innerHTML = html;
+}
+function rapportMobileMoney() {
+  var vers = lire(CLE.VERS).filter(function(v) { return v.mode === 'Mobile Money' && !v.archive; });
+  if (vers.length === 0) { document.getElementById('apercu').innerHTML = '<div class="empty">Aucun transfert Mobile Money</div>'; return; }
+  var membres = lire(CLE.MEMBRES);
+  var totalFC = 0, totalUSD = 0;
+  for (var i = 0; i < vers.length; i++) {
+    if (vers[i].devise === 'FC') totalFC += Number(vers[i].montant);
+    if (vers[i].devise === 'USD') totalUSD += Number(vers[i].montant);
+  }
+  vers.sort(function(a,b) { return new Date(b.date) - new Date(a.date); });
+  var html = '<div class="rapport-box"><h4>📱 RAPPORT MOBILE MONEY</h4>' +
+    '<p><strong>Nombre de transferts :</strong> ' + vers.length + '</p>' +
+    '<p><strong>Total FC :</strong> ' + fmtMontant(totalFC) + ' FC</p>' +
+    '<p><strong>Total USD :</strong> ' + fmtMontant(totalUSD) + ' USD</p><hr>';
+  for (var j = 0; j < vers.length; j++) {
+    var v = vers[j];
+    var m = membres.find(function(x) { return x.id === v.membreId; });
+    html += '<p><strong>' + fmtDate(v.date) + '</strong> - ' + fmtMontant(v.montant) + ' ' + v.devise + '<br>' +
+      '📱 ' + (v.mmOperateur || '-') + ' • ' + (v.mmNumero || '-') + '<br>' +
+      '🔖 Réf : ' + (v.mmRef || '-') + '<br>' +
+      '👤 Expéditeur : ' + (v.mmExpediteur || '-') + '<br>' +
+      '👥 Membre : ' + (m ? m.nom + ' ' + m.postnom : 'Inconnu') + '</p><hr>';
+  }
+  html += '</div>';
+  document.getElementById('apercu').innerHTML = html;
+}
+function releveMembre() {
+  var membres = lire(CLE.MEMBRES).filter(function(m) { return !m.archive; });
+  if (membres.length === 0) { alert('Aucun membre'); return; }
+  var noms = '';
+  for (var i = 0; i < membres.length; i++) noms += (i+1) + '. ' + membres[i].nom + ' ' + membres[i].postnom + '\n';
+  var choix = prompt('Sélectionnez :\n' + noms);
+  var idx = parseInt(choix) - 1;
+  if (isNaN(idx) || !membres[idx]) { alert('Invalide'); return; }
+  var m = membres[idx];
+  var vers = lire(CLE.VERS).filter(function(v) { return v.membreId === m.id && !v.archive; });
+  vers.sort(function(a,b) { return new Date(b.date) - new Date(a.date); });
+  var fc = 0, usd = 0;
+  for (var j = 0; j < vers.length; j++) {
+    if (vers[j].devise === 'FC') fc += Number(vers[j].montant);
+    if (vers[j].devise === 'USD') usd += Number(vers[j].montant);
+  }
+  var html = '<div class="rapport-box"><h4>📄 RELEVÉ</h4>' +
+    '<p><strong>' + m.nom + ' ' + m.postnom + ' ' + m.prenom + '</strong></p>' +
+    '<p>N° ' + m.numero + ' • ' + m.categorie + '</p>' +
+    '<p>Tél : ' + m.telephone + '</p><hr>' +
+    '<p>💰 Total : ' + fmtMontant(fc) + ' FC + ' + fmtMontant(usd) + ' USD</p>' +
+    '<p>📅 ' + vers.length + ' versements</p><hr>';
+  for (var k = 0; k < vers.length; k++) {
+    html += '<p>• ' + fmtDate(vers[k].date) + ' : <strong>' + fmtMontant(vers[k].montant) + ' ' + vers[k].devise + '</strong> (' + vers[k].motif + ')</p>';
+  }
+  html += '</div>';
+  document.getElementById('apercu').innerHTML = html;
+}
+
+function envoyerWhatsApp() {
+  var dest = document.getElementById('p-dest').value.trim().replace(/\D/g, '');
+  var msg = document.getElementById('p-msg').value;
+  if (!msg) { alert('Message vide'); return; }
+  var url = dest ? 'https://wa.me/' + dest + '?text=' + encodeURIComponent(msg) : 'https://wa.me/?text=' + encodeURIComponent(msg);
+  window.open(url, '_blank');
+  fermer('modal-partage');
+}
+function envoyerEmail() {
+  var dest = document.getElementById('p-dest').value.trim();
+  var msg = document.getElementById('p-msg').value;
+  if (!msg) { alert('Message vide'); return; }
+  window.location.href = 'mailto:' + dest + '?subject=' + encodeURIComponent('ASARPE') + '&body=' + encodeURIComponent(msg);
+  fermer('modal-partage');
+}
+
+function sauverJSON() {
+  var data = {};
+  for (var k in CLE) data[CLE[k]] = lire(CLE[k]);
+  var json = JSON.stringify(data, null, 2);
+  var blob = new Blob([json], { type: 'application/json' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'asarpe_sauvegarde_' + new Date().toISOString().split('T')[0] + '.json';
+  a.click();
+  alert('Sauvegarde téléchargée !');
+}
+function restaurerJSON() { document.getElementById('fichier-resto').click(); }
+function traiterResto(ev) {
+  var f = ev.target.files[0];
+  if (!f) return;
+  var r = new FileReader();
+  r.onload = function(e) {
+    try {
+      var data = JSON.parse(e.target.result);
+      if (!confirm('Remplacer les données actuelles ?')) return;
+      for (var k in data) localStorage.setItem(k, JSON.stringify(data[k]));
+      alert('Restauré !');
+      location.reload();
+    } catch(err) { alert('Fichier invalide'); }
+  };
+  r.readAsText(f);
+}
+function exportMembres() {
+  var membres = lire(CLE.MEMBRES);
+  if (membres.length === 0) { alert('Aucun membre'); return; }
+  var csv = 'Numero;Nom;Post-nom;Prenom;Sexe;Telephone;Email;Adresse;Statut;Categorie;Archive\n';
+  for (var i = 0; i < membres.length; i++) {
+    var m = membres[i];
+    csv += m.numero + ';' + m.nom + ';' + m.postnom + ';' + m.prenom + ';' + m.sexe + ';' + m.telephone + ';' + m.email + ';' + m.adresse + ';' + m.statutPro + ';' + m.categorie + ';' + (m.archive ? 'Oui' : 'Non') + '\n';
+  }
+  downloadCSV(csv, 'asarpe_membres.csv');
+}
+function exportVers() {
+  var vers = lire(CLE.VERS);
+  var membres = lire(CLE.MEMBRES);
+  if (vers.length === 0) { alert('Aucun versement'); return; }
+  var csv = 'Date;Membre;Montant;Devise;Motif;Mode;Operateur;Numero MM;Reference MM;Expediteur;Archive\n';
+  for (var i = 0; i < vers.length; i++) {
+    var v = vers[i];
+    var m = null;
+    for (var k = 0; k < membres.length; k++) if (membres[k].id === v.membreId) { m = membres[k]; break; }
+    csv += v.date + ';' + (m ? m.nom + ' ' + m.postnom : 'Inconnu') + ';' + v.montant + ';' + v.devise + ';' + v.motif + ';' + v.mode + ';' + (v.mmOperateur || '') + ';' + (v.mmNumero || '') + ';' + (v.mmRef || '') + ';' + (v.mmExpediteur || '') + ';' + (v.archive ? 'Oui' : 'Non') + '\n';
+  }
+  downloadCSV(csv, 'asarpe_versements.csv');
+}
+function exportOeuvres() {
+  var oeuvres = lire(CLE.OEUVRES);
+  if (oeuvres.length === 0) { alert('Aucune oeuvre'); return; }
+  var csv = 'Titre;Technique;Annee;Dimensions;Prix;Statut\n';
+  for (var i = 0; i < oeuvres.length; i++) {
+    var o = oeuvres[i];
+    csv += o.titre + ';' + o.technique + ';' + o.annee + ';' + o.dimensions + ';' + o.prix + ';' + o.statut + '\n';
+  }
+  downloadCSV(csv, 'asarpe_oeuvres.csv');
+}
+function downloadCSV(csv, filename) {
+  var blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+}
+function reinit() {
+  if (!confirm('Toutes les données seront supprimées ?')) return;
+  if (!confirm('Confirmation finale ?')) return;
+  for (var k in CLE) localStorage.removeItem(CLE[k]);
+  alert('Réinitialisé');
+  location.reload();
+}
+
+window.addEventListener('load', function() {
+  chargerParams();
+  chargerMotifs();
+  afficherDashboard();
+  remplirSelectMembres();
+
+  window.addEventListener('scroll', function() {
+    var st = document.getElementById('scrollTop');
+    if (st) st.style.display = window.scrollY > 300 ? 'block' : 'none';
+  });
+
+  var modals = document.querySelectorAll('.modal');
+  for (var i = 0; i < modals.length; i++) {
+    modals[i].addEventListener('click', function(e) {
+      if (e.target === this) this.classList.remove('show');
+    });
+  }
+
+  // Enregistrement du Service Worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js')
+      .then(function(reg) { console.log('SW OK', reg.scope); })
+      .catch(function(err) { console.log('SW erreur:', err); });
+  }
+});
+</script>
+</body>
+</html>
