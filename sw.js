@@ -1,4 +1,4 @@
-const CACHE = 'asarpe-v2';
+const CACHE = 'asarpe-v3';
 const FICHIERS = [
   './',
   './index.html',
